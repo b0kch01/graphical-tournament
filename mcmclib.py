@@ -93,4 +93,5 @@ class MCMC_Session:
             ax.plot([0, len(teams)], [0, len(teams)], 'k--')
             ax.set_title(f"n={n}, mse={mse:.2f}")
 
-        return fig, axs
+        plt.tight_layout()
+        plt.show()
