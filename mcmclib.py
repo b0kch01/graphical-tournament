@@ -95,3 +95,43 @@ class MCMC_Session:
 
         plt.tight_layout()
         plt.show()
+
+    def compare_top_n(self, other_sample: dict, teams: list, n: int = 50):
+        if self.runs == []:
+            raise ValueError("No runs to compare")
+
+        other_ranking = construct_ranking(other_sample, teams)
+        other_top_n = sorted(
+            teams, key=lambda i: other_ranking[i])[:n]
+
+        X = [other_ranking[i] for i in other_top_n]
+
+        # Auto shape the plots
+        if len(self.runs) < 3:
+            cols = len(self.runs)
+            rows = 1
+        else:
+            cols = 3
+            rows = int(len(self.runs) / cols + 0.99999)
+
+        fig, axs = plt.subplots(rows, cols, figsize=(15, 10))
+
+        for i, (n_samples, samples) in enumerate(self.runs):
+            ranking = construct_ranking(samples, teams)
+            Y = [ranking[i] for i in other_top_n]
+
+            msae = np.mean(np.abs((np.array(X) - np.array(Y))))
+
+            if cols == 1:
+                ax = axs
+            elif cols == 2:
+                ax = axs[i]
+            else:
+                ax = axs[i//cols, i % cols]
+
+            ax.plot(X, Y, 'o', alpha=0.5)
+            ax.plot([0, n], [0, n], 'k--')
+            ax.set_title(f"n={n_samples}, mse={msae:.2f}")
+
+        plt.tight_layout()
+        plt.show()
